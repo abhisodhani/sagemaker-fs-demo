@@ -168,12 +168,10 @@ def run_spark_job():
     args = parse_args()
     schema = define_schema()
     aggregated_features = aggregate_features(args, schema, spark)
-    records = transform_row_train(aggregated_features)
-    write_to_train_feature_store(records)
-#     write_to_s3(args, aggregated_features)
-#     sliced_df = group_by_card_number(aggregated_features)
-#     records = transform_row(sliced_df)
-#     write_to_feature_store(records)
+    write_to_s3(args, aggregated_features)
+    sliced_df = group_by_card_number(aggregated_features)
+    records = transform_row(sliced_df)
+    write_to_feature_store(records)
 
     
     
