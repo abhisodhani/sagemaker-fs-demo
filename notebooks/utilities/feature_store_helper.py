@@ -12,7 +12,7 @@ import pandas as pd
 import numpy as np
 import os
 from typing import List, Dict, Union, Tuple
-from datetime import datetime, timezone, date
+# from datetime import datetime, timezone, date
 
 from multiprocessing import Pool
 
@@ -98,20 +98,19 @@ class FeatureStore:
         )
         self._sm_sess = sagemaker.Session()
         self._default_bucket = self._sm_sess.default_bucket() 
-        self._timezone.utc = self.timezone.utc()
     
-    @staticmethod
-    def generate_event_timestamp():
-        # naive datetime representing local time
-        self.naive_dt = self.datetime.now()
-        # take timezone into account
-        self.aware_dt = self.naive_dt.astimezone()
-        # time in UTC
-        self.utc_dt = self.aware_dt.astimezone(self.timezone.utc)
-        # transform to ISO-8601 format
-        self.event_time = self.utc_dt.isoformat(timespec='milliseconds')
-        self.event_time = self.event_time.replace('+00:00', 'Z')
-        return self.event_time
+#     @staticmethod
+#     def generate_event_timestamp():
+#         # naive datetime representing local time
+#         self.naive_dt = self.datetime.now()
+#         # take timezone into account
+#         self.aware_dt = self.naive_dt.astimezone()
+#         # time in UTC
+#         self.utc_dt = self.aware_dt.astimezone(self.timezone.utc)
+#         # transform to ISO-8601 format
+#         self.event_time = self.utc_dt.isoformat(timespec='milliseconds')
+#         self.event_time = self.event_time.replace('+00:00', 'Z')
+#         return self.event_time
 
     def list_feature_groups(self, name_contains: str=None) -> List[str]:
         """Returns a list of the names of all existing feature groups in this account.
