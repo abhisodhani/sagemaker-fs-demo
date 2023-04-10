@@ -1,0 +1,174 @@
+{
+  "metadata": {
+    "version": 1,
+    "disable_limits": false,
+    "instance_type": "ml.m5.4xlarge"
+  },
+  "parameters": [],
+  "nodes": [
+    {
+      "node_id": "a436b5b8-d5c6-4098-a2e7-7a05f5b13905",
+      "type": "SOURCE",
+      "operator": "sagemaker.athena_source_0.1",
+      "parameters": {
+        "dataset_definition": {
+          "datasetSourceType": "Athena",
+          "name": "cc_agg_batch_chime_fg_v0",
+          "catalogName": "AwsDataCatalog",
+          "databaseName": "default",
+          "queryString": "/** * Write a SQL query and choose Run to show the first 100 rows of the query results. * If your table, schema or catalog name has a special character, such as a hyphen, surround the table name with double quotes. * For example: select * from \"catalog-name\".\"schema-name\".\"example-table-name\" */ select cc_num, num_trans_last_1w, avg_amt_last_1w, name, trans_time FROM \"sagemaker_featurestore\".\"cc_agg_batch_chime_fg_1680474349\" where name is not null",
+          "s3OutputLocation": "s3://athena-query-output-dev-us-east-1/athena/athena/",
+          "outputFormat": "parquet",
+          "workgroup": "primary",
+          "workgroupOutputLocation": "s3://athena-query-output-dev-us-east-1/",
+          "enforceWorkgroupConfiguration": false
+        },
+        "dataSource": {
+          "sourceType": "Amazon Athena"
+        }
+      },
+      "trained_parameters": {
+        "query_execution_id": "1cf43110-ab10-488e-aa6b-df35b1d19d1a",
+        "unload_table_name": "eb2277559f3347988b1f31481d30f8c0",
+        "unload_s3_output_location": "s3://athena-query-output-dev-us-east-1/athena/athena/eb2277559f3347988b1f31481d30f8c0/data/"
+      },
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "default",
+          "sampling": {
+            "sampling_method": "sample_by_limit",
+            "limit_rows": 50000
+          }
+        }
+      ]
+    },
+    {
+      "node_id": "4953d987-25c2-4cc8-9ea4-a6dc225b7cfb",
+      "type": "TRANSFORM",
+      "operator": "sagemaker.spark.infer_and_cast_type_0.1",
+      "parameters": {},
+      "trained_parameters": {},
+      "inputs": [
+        {
+          "name": "df",
+          "node_id": "a436b5b8-d5c6-4098-a2e7-7a05f5b13905",
+          "output_name": "default"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "default"
+        }
+      ]
+    },
+    {
+      "node_id": "9369c578-f2d3-4846-9349-6d0645d6c3a8",
+      "type": "TRANSFORM",
+      "operator": "sagemaker.spark.search_and_edit_0.1",
+      "parameters": {
+        "operator": "Split string by delimiter",
+        "split_string_by_delimiter_parameters": {
+          "input_column": [
+            "name"
+          ],
+          "delimiter": " ",
+          "output_column": "name_split"
+        },
+        "find_and_replace_substring_parameters": {}
+      },
+      "inputs": [
+        {
+          "name": "df",
+          "node_id": "4953d987-25c2-4cc8-9ea4-a6dc225b7cfb",
+          "output_name": "default"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "default"
+        }
+      ]
+    },
+    {
+      "node_id": "25933554-36d0-4c31-ae4c-d7e8be4f3d7e",
+      "type": "TRANSFORM",
+      "operator": "sagemaker.spark.handle_structured_column_0.1",
+      "parameters": {
+        "operator": "Explode array column",
+        "explode_array_parameters": {
+          "keep_source": false,
+          "input_column": "name_split"
+        },
+        "flatten_struct_parameters": {
+          "input_column": [
+            "name_split"
+          ],
+          "keep_source": true
+        }
+      },
+      "inputs": [
+        {
+          "name": "df",
+          "node_id": "9369c578-f2d3-4846-9349-6d0645d6c3a8",
+          "output_name": "default"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "default"
+        }
+      ]
+    },
+    {
+      "node_id": "5962ca80-d8d7-4153-83d1-6f992cda4483",
+      "type": "TRANSFORM",
+      "operator": "sagemaker.spark.manage_columns_0.1",
+      "parameters": {
+        "operator": "Rename column",
+        "rename_column_parameters": {
+          "input_column": "name_split_flattened",
+          "new_name": "first_name"
+        },
+        "drop_column_parameters": {}
+      },
+      "inputs": [
+        {
+          "name": "df",
+          "node_id": "25933554-36d0-4c31-ae4c-d7e8be4f3d7e",
+          "output_name": "default"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "default"
+        }
+      ]
+    },
+    {
+      "node_id": "341b5dc3-f68e-4a6d-b886-a84348fad36d",
+      "type": "TRANSFORM",
+      "operator": "sagemaker.spark.manage_columns_0.1",
+      "parameters": {
+        "operator": "Drop column",
+        "drop_column_parameters": {
+          "column_to_drop": [
+            "name"
+          ]
+        }
+      },
+      "inputs": [
+        {
+          "name": "df",
+          "node_id": "5962ca80-d8d7-4153-83d1-6f992cda4483",
+          "output_name": "default"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "default"
+        }
+      ]
+    }
+  ]
+}
